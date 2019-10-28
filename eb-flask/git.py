@@ -6,10 +6,11 @@ import os
 import subprocess
 
 
-#GIT_BINARY_PATH = "/usr/bin/git"
 GIT_BINARY_PATH = "git"
 REPO_CLONE_URL = "https://github.com/pytorch/pytorch.git"
-CLONE_PATH = os.path.expanduser("~/repo/pytorch.git")
+
+
+CLONE_PATH = os.path.join(os.path.dirname(__file__), 'repo/pytorch.git')
 
 
 class CommandResult:

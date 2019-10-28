@@ -1,6 +1,7 @@
 import os
 import sqlite3
 
+
 DEFAULT_PATH = os.path.join(os.path.dirname(__file__), 'database.sqlite3')
 
 
@@ -33,6 +34,11 @@ def get_operation_logs(operation):
         cur = conn.cursor()  # instantiate a cursor obj
         cur.execute(sql, (operation,))
         return cur.fetchall()
+
+
+def clear_command_logs():
+    os.remove(DEFAULT_PATH)
+    initialize_db()
 
 
 CREATE_TABLE_LOGS = """
