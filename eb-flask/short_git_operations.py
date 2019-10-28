@@ -71,13 +71,10 @@ def query_ancestry(ancestor, descendent):
         # 0 or 1 are expected exit codes of --is-ancestor,
         # while other codes indicate a malfunction.
         if x.return_code == 0:
-            print("Got here A")
             return True
         elif x.return_code == 1:
-            print("Got here B")
             return False
         else:
-            print("Got here C")
             raise RuntimeError("Problem determining if {} is ancestor of {}"
                                .format(ancestor, descendent))
 

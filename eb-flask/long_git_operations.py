@@ -7,20 +7,32 @@ import os
 import datetime
 import contextlib
 import subprocess
+from multiprocessing.pool import ThreadPool
 
 import db
 import git
 
 
-operation_locks = {}
+my_thread_pool = ThreadPool(1)
 
 
-@contextlib.contextmanager
-def non_blocking_lock(lock=threading.Lock()):
-    try:
-        yield lock.acquire(blocking=False)
-    finally:
-        lock.release()
+class OperationInfo:
+    def __init__(self):
+        self.operation = None
+        self.started_at = None
+        self.is_ongoing = False
+        self.mutating_operation_lock = threading.Lock()
+
+
+# A singleton
+current_operation_info = OperationInfo()
+
+
+def render_status():
+    if current_operation_info.is_ongoing:
+        return "<p>Operation <code>{}</code> has been running since {}</p>".format(current_operation_info.operation, current_operation_info.started_at)
+    else:
+        return "<p>No operations ongoing.</p>"
 
 
 def generic_git_op(operation, op_func, guard_func=None):
@@ -29,20 +41,22 @@ def generic_git_op(operation, op_func, guard_func=None):
     the operation is skipped.
     """
 
-    operation_lock = operation_locks.setdefault(operation, threading.Lock())
-    with non_blocking_lock(operation_lock) as did_acquire:
+    acquired = current_operation_info.mutating_operation_lock.acquire(blocking=False)
+    if acquired:
 
-        if did_acquire:
+        if guard_func:
+            guard_output = guard_func()
+            if guard_output:
+                current_operation_info.mutating_operation_lock.release()
+                return guard_output
 
-            if guard_func:
-
-                guard_output = guard_func()
-
-                if guard_output:
-                    return guard_output
+        def wrapped_func():
 
             try:
                 clone_start_time = datetime.datetime.now()
+                current_operation_info.operation = operation
+                current_operation_info.started_at = clone_start_time
+                current_operation_info.is_ongoing = True
 
                 foo = op_func()
 
@@ -50,15 +64,20 @@ def generic_git_op(operation, op_func, guard_func=None):
                 elapsed_seconds = (clone_end_time - clone_start_time).total_seconds()
 
                 db.insert_operation_log(operation, elapsed_seconds, foo)
-                return {"status": "complete", "result": foo}
 
             except subprocess.CalledProcessError as e:
                 exception_text = "Had a problem: " + str(e)
                 print(exception_text)
-                return {"status": "failed", "message": exception_text}
 
-        else:
-            return {"status": "ongoing", "message": "Already working"}
+            finally:
+                current_operation_info.is_ongoing = False
+                current_operation_info.mutating_operation_lock.release()
+
+        my_thread_pool.apply_async(wrapped_func)
+        return {"status": "started"}
+
+    else:
+        return {"status": "ongoing", "message": "Already working"}
 
 
 def do_git_clone():

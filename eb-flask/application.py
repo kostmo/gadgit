@@ -9,7 +9,7 @@ import ht
 
 
 def generate_rules(app):
-    app.add_url_rule('/', 'index', (lambda: ht.header_text + ht.instructions + ht.footer_text))
+    app.add_url_rule('/', 'index', (lambda: ht.header_text + "<h2>Operational status</h2>" + long_git_operations.render_status() + ht.instructions + ht.footer_text))
 
     # Actions
     app.add_url_rule('/git-clone', 'hello1', long_git_operations.do_git_clone)

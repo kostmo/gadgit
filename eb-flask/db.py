@@ -15,21 +15,20 @@ def initialize_db():
         cur.execute(CREATE_TABLE_LOGS)
 
 
-def insert_operation_log(operation, duration, content):
+def insert_operation_log(operation, duration, command_result_obj):
 
     with db_connect() as conn:
-        cur = conn.cursor()  # instantiate a cursor obj
+        cur = conn.cursor()
 
-        # Insert a row of data
-        cur.execute("INSERT INTO command_logs (operation, duration, content) VALUES (?, ?, ?)", (operation, duration, content))
+        cur.execute("INSERT INTO command_logs (operation, duration, return_code, stdout, stderr) VALUES (?, ?, ?, ?, ?)",
+                    (operation, duration, command_result_obj.return_code, command_result_obj.stdout, command_result_obj.stderr))
 
-        # Save (commit) the changes
         conn.commit()
 
 
 def get_operation_logs(operation):
 
-    sql = "SELECT duration, content, created_at FROM command_logs WHERE operation = ? ORDER BY created_at DESC"
+    sql = "SELECT duration, created_at, return_code, stdout, stderr FROM command_logs WHERE operation = ? ORDER BY created_at DESC"
     with db_connect() as conn:
         cur = conn.cursor()  # instantiate a cursor obj
         cur.execute(sql, (operation,))
@@ -41,7 +40,9 @@ CREATE TABLE IF NOT EXISTS command_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     operation text,
     duration float,
-    content text,
+    return_code INTEGER,
+    stdout text,
+    stderr text,
     created_at integer DEFAULT CURRENT_TIME
 )
 """
