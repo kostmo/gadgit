@@ -95,21 +95,15 @@ def bare_clone():
     return get_command_result(cmd_args)
 
 
-def is_git_ancestor(git_objdir, supposed_ancestor, supposed_descendent) -> bool:
+def is_git_ancestor(git_objdir, supposed_ancestor, supposed_descendent):
     cmd_args = [
         GIT_BINARY_PATH,
         '--git-dir', git_objdir,
         'merge-base',
         '--is-ancestor',
-        supposed_ancestor, supposed_descendent]
+        supposed_ancestor,
+        supposed_descendent,
+    ]
 
-    # 0 or 1 are expected exit codes of --is-ancestor,
-    # while other codes indicate a malfunction.
-    return_code = subprocess.call(cmd_args)
-    if return_code == 0:
-        return True
-    elif return_code == 1:
-        return False
-    else:
-        raise RuntimeError("Problem determining if {} is ancestor of {}"
-            .format(supposed_ancestor, supposed_descendent))
+    return get_command_result(cmd_args)
+
