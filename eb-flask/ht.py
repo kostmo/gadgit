@@ -14,7 +14,7 @@ def render_log_entry_html(duration, content, created_at):
 header_text = '''
     <html>\n<head> <title>Git repo clone</title> </head>\n<body>'''
 instructions = '''
-
+    <p>Testing interface:</p>
     <h2>Actions</h2>
     <ul>
     <li><a href="/git-clone">Clone</a></li>
