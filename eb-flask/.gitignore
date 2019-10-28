@@ -1,3 +1,7 @@
+database.sqlite3
+.dockerignore
+__pycache__
+virt
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
