@@ -10,7 +10,11 @@ GIT_BINARY_PATH = "git"
 REPO_CLONE_URL = "https://github.com/pytorch/pytorch.git"
 
 
-CLONE_PATH = os.path.join(os.path.dirname(__file__), 'repo/pytorch.git')
+# In contrast with the "/opt/python/current/app" directory, in which the
+# python application files are stored, the "/tmp" directory persists across
+# application redeployments.  This persistence is desirable as a fresh
+# fetch of all of the PR refs can take over 10 minutes.
+CLONE_PATH = '/tmp/repo/pytorch.git'
 
 
 class CommandResult:
@@ -82,6 +86,23 @@ def commit_distance(git_objdir, merge_base_sha1, branch_commit_sha1):
     return get_command_result(cmd_args)
 
 
+def current_pointing_prs(git_objdir, commit_sha1):
+
+    cmd_args = [
+        GIT_BINARY_PATH,
+        '--git-dir',
+        git_objdir,
+        "branch",
+        "--all",
+        "--list",
+        "*/pr/*/head",
+        "--points-at",
+        commit_sha1,
+    ]
+
+    return get_command_result(cmd_args)
+
+
 def bare_clone():
     os.makedirs(os.path.dirname(CLONE_PATH), mode=0o777, exist_ok=True)
 
@@ -89,6 +110,7 @@ def bare_clone():
         GIT_BINARY_PATH,
         "clone",
         "--bare",
+        "--single-branch",
         REPO_CLONE_URL,
         CLONE_PATH,
     ]

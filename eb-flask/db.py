@@ -29,7 +29,7 @@ def insert_operation_log(operation, duration, command_result_obj):
 
 def get_operation_logs(operation):
 
-    sql = "SELECT duration, created_at, return_code, stdout, stderr FROM command_logs WHERE operation = ? ORDER BY created_at DESC"
+    sql = "SELECT duration, created_at, return_code, stdout, stderr FROM command_logs WHERE operation = ? ORDER BY created_at DESC LIMIT 30"
     with db_connect() as conn:
         cur = conn.cursor()  # instantiate a cursor obj
         cur.execute(sql, (operation,))

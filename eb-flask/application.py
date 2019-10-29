@@ -28,19 +28,19 @@ def generate_rules(app):
     app.add_url_rule('/', 'index', (lambda: ht.header_text + "<h2>Operational status</h2>" + long_git_operations.render_status() + ht.instructions + ht.footer_text))
 
     # Actions
-    app.add_url_rule('/git-clone', 'hello1', long_git_operations.do_git_clone)
-    app.add_url_rule('/pr-fetch', 'hello2', long_git_operations.do_pr_fetch)
+    app.add_url_rule('/git-clone', 'action1', long_git_operations.do_git_clone)
+    app.add_url_rule('/pr-fetch', 'action2', long_git_operations.do_pr_fetch)
 
     # Queries
-    app.add_url_rule('/commit-distance/<base>/<branch>', 'hello3', short_git_operations.git_commit_distance)
-    app.add_url_rule('/pr-head-commit/<pr>', 'hello4', short_git_operations.git_pull_request_head_commit)
-    app.add_url_rule('/master-merge-base/<commit>', 'hello5', short_git_operations.git_master_merge_base)
-    app.add_url_rule('/is-ancestor/<ancestor>/<descendent>', 'hello6', short_git_operations.query_ancestry)
+    app.add_url_rule('/commit-distance/<base>/<branch>', 'query1', short_git_operations.git_commit_distance)
+    app.add_url_rule('/pr-head-commit/<pr>', 'query2', short_git_operations.git_pull_request_head_commit)
+    app.add_url_rule('/master-merge-base/<commit>', 'query3', short_git_operations.git_master_merge_base)
+    app.add_url_rule('/head-of-pull-requests/<commit>', 'query4', short_git_operations.git_pointing_prs)
+    app.add_url_rule('/is-ancestor/<ancestor>/<descendent>', 'query5', short_git_operations.query_ancestry)
 
     # Diagnostics
-    app.add_url_rule('/action-logs/<cmd>', 'hello7', ht.dump_command_logs)
-
-    app.add_url_rule('/clear-logs', 'hello8', cmd_logs_clear_operation)
+    app.add_url_rule('/action-logs/<cmd>', 'diag1', ht.dump_command_logs)
+    app.add_url_rule('/clear-logs', 'diag2', cmd_logs_clear_operation)
 
 
 # EB looks for an 'application' callable by default.
@@ -51,10 +51,6 @@ generate_rules(application)
 
 @application.route('/github-webhook-event', methods=['POST'])
 def print_test():
-    """
-    Send a POST request to localhost:5000/api/print with a JSON body with a "p" key
-    to print that message in the server console.
-    """
 
     pushed_ref = parse_request(request)
     print("pushed ref:", pushed_ref)
