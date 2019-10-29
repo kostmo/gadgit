@@ -130,3 +130,42 @@ def is_git_ancestor(git_objdir, supposed_ancestor, supposed_descendent):
 
     return get_command_result(cmd_args)
 
+
+def get_metadata_aspect(git_objdir, commit_sha1, format_specifier):
+
+    cmd_args = [
+        GIT_BINARY_PATH,
+        '--git-dir', git_objdir,
+        'log',
+        '--format=' + format_specifier,
+        '-n', '1',
+        commit_sha1,
+    ]
+
+    return get_command_result(cmd_args)
+
+
+KEYS_AND_FORMAT_SPECIFIERS = {
+    "message": "%B",
+    "sha1": "%H",
+    "subject": "%f",
+    "tree_sha1": "%T",
+    "author_name": "%an",
+    "author_email": "%aE",
+    "author_date": "%ai",
+    "committer_name": "%cN",
+    "committer_email": "%cE",
+    "committer_date": "%ci",
+}
+
+
+def get_all_metadata_aspects(git_objdir, commit_sha1):
+
+    newdict = {}
+    for k, v in KEYS_AND_FORMAT_SPECIFIERS.items():
+        cmd_results = get_metadata_aspect(git_objdir, commit_sha1, v)
+        newdict[k] = cmd_results.stdout
+
+    return newdict
+
+

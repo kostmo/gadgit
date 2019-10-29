@@ -16,6 +16,8 @@ def cmd_logs_clear_operation():
     return "Cleared."
 
 
+
+
 def generate_rules(app):
     app.add_url_rule('/', 'index', (lambda: ht.header_text + "<h2>Operational status</h2>" + long_git_operations.render_status() + ht.instructions + ht.footer_text))
 
@@ -99,11 +101,24 @@ def webhook_handler():
     return "", 200, None
 
 
+@application.route('/commit-metadata', methods=['POST'])
+def handle_batch_commit_metadata_request():
+
+    payload = json.loads(request.get_data())
+    metadata_list = short_git_operations.fetch_metadata_batch(payload)
+    mydict = {
+        "status": "complete",
+        "success": True,
+        "result": metadata_list,
+    }
+    return mydict
+
+
 if __name__ == "__main__":
 
     db.initialize_db()
 
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app.
-    application.debug = True
+#    application.debug = True
     application.run(host="0.0.0.0", use_reloader=False)

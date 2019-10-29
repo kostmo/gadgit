@@ -38,6 +38,22 @@ def format_query_result(
     return mydict
 
 
+def fetch_metadata_batch(commit_sha1_list):
+
+    metadata_list = []
+
+    failed_sha1s = []
+    for i, commit_sha1 in enumerate(commit_sha1_list):
+        print("Progress: %d/%d" % (i + 1, len(commit_sha1_list)))
+        try:
+            metadata_list.append(git.get_all_metadata_aspects(git.CLONE_PATH, commit_sha1))
+        except:
+            print("Skipping", commit_sha1)
+            failed_sha1s.append(commit_sha1)
+
+    return metadata_list
+
+
 def git_pointing_prs(commit):
     """
     May take around 0.5sec
