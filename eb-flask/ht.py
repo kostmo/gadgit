@@ -5,12 +5,6 @@ HTML rendering
 import db
 
 
-def render_log_entry_html(duration, created_at, return_code, stdout, stderr):
-    val = "<dt>At {}, duration {} sec; returned {}</dt><dd><dl><dt>STDOUT</dt><dd><code style='white-space: pre;'>{}</code></dd><dt>STDERR</dt><dd><code style='white-space: pre;'>{}</code></dd></dl></dd>"
-    return val.format(
-        created_at, duration, return_code, stdout, stderr)
-
-
 header_text = '''<html>\n<head> <title>Git repo clone</title> </head>\n<body>'''
 
 
@@ -32,10 +26,15 @@ instructions = '''
     <li><a href="/head-of-pull-requests/9533931b38ff814807f32cb79319f04bdce29f5e">Pointing PRs</a> (should say <code>28784</code></li>    
     <li><a href="/master-merge-base/f5d59f654ab1a8193fb40541cbd98eed86346b7d">Merge base with master</a> (should say <code>764e0ee88245c435be6934a5a06316c64ea171cc</code>)</li>
     <li><a href="commit-distance/764e0ee88245c435be6934a5a06316c64ea171cc/f5d59f654ab1a8193fb40541cbd98eed86346b7d">Commit distance</a> (should say <code>4</code>)</li>
-    <li>Action logs
+    <li>Logs
         <ul>
-            <li><a href="/action-logs/clone">Clone logs</a></li>
-            <li><a href="/action-logs/fetch">Fetch logs</a></li>
+            <li><a href="/github-event-logs">GitHub event logs</a></li>
+            <li>Action logs
+                <ul>
+                    <li><a href="/action-logs/clone">Clone logs</a></li>
+                    <li><a href="/action-logs/fetch">Fetch logs</a></li>
+                </ul>
+            </li>
         </ul>
     </li>
     </ul>
@@ -44,6 +43,12 @@ instructions = '''
 
 home_link = '<p><a href="/">Back</a></p>\n'
 footer_text = '</body>\n</html>'
+
+
+def render_log_entry_html(duration, created_at, return_code, stdout, stderr):
+    val = "<dt>At {}, duration {} sec; returned {}</dt><dd><dl><dt>STDOUT</dt><dd><code style='white-space: pre;'>{}</code></dd><dt>STDERR</dt><dd><code style='white-space: pre;'>{}</code></dd></dl></dd>"
+    return val.format(
+        created_at, duration, return_code, stdout, stderr)
 
 
 def dump_command_logs(cmd):
@@ -55,10 +60,31 @@ def dump_command_logs(cmd):
     <html>\n<head> <title>Action logs</title> </head>\n<body>
     <h2>For <code>''' + cmd + '''</code></h2>
 
-    <h2>Actions</h2>
     <dl>
     ''' + list_content + '''
     </dl>
+    </body>
+    </html>
+    '''
+
+
+def render_github_event_entry_html(id, event, received_at):
+    val = "<li>row {} at {}: <code>{}</code></li>"
+    return val.format(id, received_at, event)
+
+
+def dump_github_event_logs():
+    list_content = ""
+    for x in db.get_github_event_logs():
+        list_content += render_github_event_entry_html(*x)
+
+    return '''
+    <html>\n<head> <title>Github event logs</title> </head>\n<body>
+    <h2>Github event logs</h2>
+
+    <ul>
+    ''' + list_content + '''
+    </ul>
     </body>
     </html>
     '''

@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
-from flask import Flask, request
+from flask import Flask, request, abort
 import json
+import hmac
+import os
 
 import long_git_operations
 import short_git_operations
@@ -12,16 +14,6 @@ import ht
 def cmd_logs_clear_operation():
     db.clear_command_logs()
     return "Cleared."
-
-
-def parse_request(req):
-    """
-    Parses application/json request body data into a Python dictionary
-    """
-    payload = req.get_data()
-    payload = json.loads(payload)
-
-    return payload["ref"]
 
 
 def generate_rules(app):
@@ -40,7 +32,8 @@ def generate_rules(app):
 
     # Diagnostics
     app.add_url_rule('/action-logs/<cmd>', 'diag1', ht.dump_command_logs)
-    app.add_url_rule('/clear-logs', 'diag2', cmd_logs_clear_operation)
+    app.add_url_rule('/github-event-logs', 'diag2', ht.dump_github_event_logs)
+    app.add_url_rule('/clear-logs', 'diag3', cmd_logs_clear_operation)
 
 
 # EB looks for an 'application' callable by default.
@@ -49,15 +42,59 @@ application = Flask(__name__)
 generate_rules(application)
 
 
+def event_should_trigger_fetch(event_type, payload, event_record_id):
+    if event_type == "push":
+        pushed_ref = payload["ref"]
+        print("pushed ref:", pushed_ref)
+        return True
+
+    elif event_type == "pull_request":
+
+        pr_action = payload["action"]
+        pr_number = payload["number"]
+        print("Pull request event details :: action:", pr_action, "; number:", pr_number)
+
+        if pr_action in ["opened", "edited", "reopened", "synchronize"]:
+            return True
+
+    return False
+
+
+def enforce_signature(req):
+
+    secret = os.environ.get('GITHUB_WEBHOOK_SECRET')
+    if secret:
+        header_signature = req.headers.get('X-Hub-Signature')
+        if header_signature is None:
+            abort(403)
+
+        sha_name, signature = header_signature.split('=')
+        if sha_name != 'sha1':
+            abort(501)
+
+        mac = hmac.new(secret.encode('utf-8'), msg=req.data, digestmod='sha1')
+        if not hmac.compare_digest(str(mac.hexdigest()), str(signature)):
+            abort(403)
+
+
 @application.route('/github-webhook-event', methods=['POST'])
-def print_test():
+def webhook_handler():
 
-    pushed_ref = parse_request(request)
-    print("pushed ref:", pushed_ref)
+    # Aborts this function early if signature does not match.
+    enforce_signature(request)
 
-    # This is idempotent; if there is already an ongoing fetch,
-    # it will just return without doing anything.
-    long_git_operations.do_pr_fetch()
+    event_type = request.headers['X-GitHub-Event']
+
+    event_record_id = db.insert_event(event_type)
+    # print("Inserted %s event with row ID %d" % (event_type, event_record_id))
+
+    payload = json.loads(request.get_data())
+
+    should_push = event_should_trigger_fetch(event_type, payload, event_record_id)
+    if should_push:
+        # This is idempotent; if there is already an ongoing fetch,
+        # it will just return without doing anything.
+        response_dict = long_git_operations.do_pr_fetch()
 
     return "", 200, None
 

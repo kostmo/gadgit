@@ -48,7 +48,7 @@ def generic_git_op(operation, op_func, guard_func=None):
             guard_output = guard_func()
             if guard_output:
                 current_operation_info.mutating_operation_lock.release()
-                return guard_output
+                return {"status": "skipped", "message": guard_output}
 
         def wrapped_func():
 
