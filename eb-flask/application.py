@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from flask import Flask, request, abort
+from flask import Flask, request, abort, send_from_directory
 import json
 import hmac
 import os
@@ -113,6 +113,11 @@ def handle_batch_commit_metadata_request():
     }
     return mydict
 
+
+@application.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(application.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 if __name__ == "__main__":
 
