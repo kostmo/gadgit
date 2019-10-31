@@ -15,6 +15,8 @@ import git
 
 my_thread_pool = ThreadPool(1)
 
+last_fetch_time = datetime.datetime.now() - datetime.timedelta(minutes=5)
+
 
 class OperationInfo:
     def __init__(self):
@@ -90,5 +92,15 @@ def do_git_clone():
 
 
 def do_pr_fetch():
-    return generic_git_op("fetch", git.fetch_pr_refs)
+
+    def guard_func():
+        global last_fetch_time
+
+        current_time = datetime.datetime.now()
+        if (current_time - last_fetch_time).total_seconds() < 60:
+            return "Will not fetch more than once per minute. Last fetch was started at {}".format(last_fetch_time)
+
+        last_fetch_time = current_time
+
+    return generic_git_op("fetch", git.fetch_pr_refs, guard_func)
 

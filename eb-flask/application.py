@@ -16,8 +16,6 @@ def cmd_logs_clear_operation():
     return "Cleared."
 
 
-
-
 def generate_rules(app):
     app.add_url_rule('/', 'index', (lambda: ht.header_text + "<h2>Operational status</h2>" + long_git_operations.render_status() + ht.instructions + ht.footer_text))
 
@@ -118,6 +116,7 @@ def handle_batch_commit_metadata_request():
 def favicon():
     return send_from_directory(os.path.join(application.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 
 if __name__ == "__main__":
 
