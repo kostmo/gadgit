@@ -25,8 +25,10 @@ def insert_operation_log(operation, duration, command_result_obj):
         cur = conn.cursor()
 
         print("\tpre-execute for inserting record for {} operation".format(operation))
-        cur.execute("INSERT INTO command_logs (operation, duration, return_code, stdout, stderr) VALUES (?, ?, ?, ?, ?)",
-                    (operation, duration, command_result_obj.return_code, command_result_obj.stdout, command_result_obj.stderr))
+        values_to_insert = (operation, duration, command_result_obj.return_code, command_result_obj.stdout, command_result_obj.stderr)
+
+        print("\tValues to insert:", values_to_insert)
+        cur.execute("INSERT INTO command_logs (operation, duration, return_code, stdout, stderr) VALUES (?, ?, ?, ?, ?)", values_to_insert)
 
         print("\tpre-commit for inserting record for {} operation".format(operation))
 

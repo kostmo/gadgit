@@ -101,9 +101,10 @@ def do_pr_fetch():
             return "Will not fetch more than once per minute. Last fetch completed at {}".format(last_fetch_time)
 
     def operation_function():
-        git.fetch_pr_refs()
+        result = git.fetch_pr_refs()
         global last_fetch_time
         last_fetch_time = datetime.datetime.now()
+        return result
 
     return generic_git_op("fetch", operation_function, guard_func)
 
