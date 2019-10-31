@@ -34,6 +34,7 @@ def generate_rules(app):
     app.add_url_rule('/action-logs/<cmd>', 'diag1', ht.dump_command_logs)
     app.add_url_rule('/github-event-logs', 'diag2', ht.dump_github_event_logs)
     app.add_url_rule('/clear-logs', 'diag3', cmd_logs_clear_operation)
+    app.add_url_rule('/last-fetch-time', 'diag4', long_git_operations.get_last_fetch_time)
 
 
 # EB looks for an 'application' callable by default.
@@ -90,11 +91,15 @@ def webhook_handler():
 
     payload = json.loads(request.get_data())
 
-    should_push = event_should_trigger_fetch(event_type, payload, event_record_id)
-    if should_push:
+    should_fetch = event_should_trigger_fetch(event_type, payload, event_record_id)
+    print("Should fetch?", should_fetch)
+    if should_fetch:
         # This is idempotent; if there is already an ongoing fetch,
         # it will just return without doing anything.
+
+        print("About to re-fetch...")
         response_dict = long_git_operations.do_pr_fetch()
+        print("Finished re-fetch with response:", response_dict)
 
     return "", 200, None
 

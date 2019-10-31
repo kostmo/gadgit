@@ -98,9 +98,25 @@ def do_pr_fetch():
 
         current_time = datetime.datetime.now()
         if (current_time - last_fetch_time).total_seconds() < 60:
-            return "Will not fetch more than once per minute. Last fetch was started at {}".format(last_fetch_time)
+            return "Will not fetch more than once per minute. Last fetch completed at {}".format(last_fetch_time)
 
-        last_fetch_time = current_time
+    def operation_function():
+        git.fetch_pr_refs()
+        global last_fetch_time
+        last_fetch_time = datetime.datetime.now()
 
-    return generic_git_op("fetch", git.fetch_pr_refs, guard_func)
+    return generic_git_op("fetch", operation_function, guard_func)
 
+
+def get_last_fetch_time():
+
+    global last_fetch_time
+    mydict = {
+        "status": "complete",
+        "success": True,
+        "result": {
+            "seconds_ago": (datetime.datetime.now() - last_fetch_time).total_seconds(),
+            "timestamp": last_fetch_time,
+        },
+    }
+    return mydict

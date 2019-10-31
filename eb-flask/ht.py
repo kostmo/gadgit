@@ -26,23 +26,31 @@ instructions = '''
     <li><a href="/head-of-pull-requests/9533931b38ff814807f32cb79319f04bdce29f5e">Pointing PRs</a> (should say <code>28784</code></li>    
     <li><a href="/master-merge-base/f5d59f654ab1a8193fb40541cbd98eed86346b7d">Merge base with master</a> (should say <code>764e0ee88245c435be6934a5a06316c64ea171cc</code>)</li>
     <li><a href="commit-distance/764e0ee88245c435be6934a5a06316c64ea171cc/f5d59f654ab1a8193fb40541cbd98eed86346b7d">Commit distance</a> (should say <code>4</code>)</li>
-    <li>Logs
+    <li>Diagnostics
         <ul>
-            <li><a href="/github-event-logs">GitHub event logs</a></li>
-            <li>Action logs
+            <li><a href="/last-fetch-time">Last fetch time</a></li>
+            <li>Logs
                 <ul>
-                    <li><a href="/action-logs/clone">Clone logs</a></li>
-                    <li><a href="/action-logs/fetch">Fetch logs</a></li>
+                    <li><a href="/github-event-logs">GitHub event logs</a></li>
+                    <li>Action logs
+                        <ul>
+                            <li><a href="/action-logs/clone">Clone logs</a></li>
+                            <li><a href="/action-logs/fetch">Fetch logs</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </li>
         </ul>
     </li>
+    
     </ul>
     '''
 
 
 home_link = '<p><a href="/">Back</a></p>\n'
-footer_text = '</body>\n</html>'
+footer_text = '''<hr/><i>by <a href="https://github.com/kostmo" rel="author">kostmo</a></i>
+<span style="float: right">See <a href="https://github.com/kostmo/gadgit/blob/master/README.md">project README</a> for details.</span>
+</body>\n</html>'''
 
 
 def render_log_entry_html(duration, created_at, return_code, stdout, stderr):

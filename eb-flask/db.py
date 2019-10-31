@@ -20,13 +20,19 @@ def initialize_db():
 
 def insert_operation_log(operation, duration, command_result_obj):
 
+    print("About to insert record for {} operation".format(operation))
     with db_connect() as conn:
         cur = conn.cursor()
 
+        print("\tpre-execute for inserting record for {} operation".format(operation))
         cur.execute("INSERT INTO command_logs (operation, duration, return_code, stdout, stderr) VALUES (?, ?, ?, ?, ?)",
                     (operation, duration, command_result_obj.return_code, command_result_obj.stdout, command_result_obj.stderr))
 
+        print("\tpre-commit for inserting record for {} operation".format(operation))
+
         conn.commit()
+
+        print("\tpost-commit for inserting record for {} operation".format(operation))
 
 
 def insert_event(event_type):
