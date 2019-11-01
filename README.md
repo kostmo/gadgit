@@ -1,6 +1,37 @@
 # Gadgit
 
-Mirrors a Git repo to which web applications can make efficient queries for branch ancestry/merge bases that the GitHub API does not provide.
+Mirrors a Git repo to which web applications can make efficient queries
+for information that the GitHub API does not provide.
+
+## Demo
+
+Serves [pytorch repo](http://gadgit.pytorch.org/)
+
+## Features
+
+### Event-driven repo maintenance
+
+Keeps repo clone up-to-date by re-`fetch`ing upon GitHub `push` and `pull_request` events.
+
+### Efficient information retrieval
+
+* Bulk git commit metadata retrieval
+* Queries
+    * is-ancestor queries
+    * merge base queries
+    * Determine Pull Request with a given head commit
+    * Determine head commit of a given Pull Request
+
+### Diagnostics
+
+* Logs all received GitHub events
+* Logs all fetch operations
+
+### Repo hosting
+
+* uses a "bare" repo clone
+* rate-limits new fetches to 1 per minute
+* protects against simultaneous `fetch` or `clone` operations 
 
 ## Deployment
 
