@@ -5,12 +5,16 @@ Long Git operations
 import threading
 import os
 import datetime
-import contextlib
 import subprocess
 from multiprocessing.pool import ThreadPool
 
 import db
 import git
+
+
+RATE_LIMIT_SECONDS = 60
+
+REPO_CLONE_URL = "https://github.com/pytorch/pytorch.git"
 
 
 my_thread_pool = ThreadPool(1)
@@ -88,7 +92,10 @@ def do_git_clone():
         if os.path.exists(git.CLONE_PATH):
             return "Clone already exists."
 
-    return generic_git_op("clone", git.bare_clone, guard_func)
+    def op_function():
+        return git.bare_clone(REPO_CLONE_URL)
+
+    return generic_git_op("clone", op_function, guard_func)
 
 
 def do_pr_fetch():
@@ -97,7 +104,7 @@ def do_pr_fetch():
         global last_fetch_time
 
         current_time = datetime.datetime.now()
-        if (current_time - last_fetch_time).total_seconds() < 60:
+        if (current_time - last_fetch_time).total_seconds() < RATE_LIMIT_SECONDS:
             return "Will not fetch more than once per minute. Last fetch completed at {}".format(last_fetch_time)
 
     def operation_function():
@@ -112,7 +119,7 @@ def do_pr_fetch():
 def get_last_fetch_time():
 
     global last_fetch_time
-    mydict = {
+    return {
         "status": "complete",
         "success": True,
         "result": {
@@ -120,4 +127,3 @@ def get_last_fetch_time():
             "timestamp": last_fetch_time,
         },
     }
-    return mydict

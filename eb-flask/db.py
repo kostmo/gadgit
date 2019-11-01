@@ -5,36 +5,52 @@ import sqlite3
 DEFAULT_PATH = os.path.join(os.path.dirname(__file__), 'database.sqlite3')
 
 
+CREATE_TABLE_LOGS = """
+CREATE TABLE IF NOT EXISTS command_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    operation TEXT,
+    duration FLOAT,
+    return_code INTEGER,
+    stdout TEXT,
+    stderr TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+"""
+
+CREATE_TABLE_GITHUB_EVENTS = """
+CREATE TABLE IF NOT EXISTS github_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    event TEXT,
+    received_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+"""
+
+
+TABLE_CREATION_COMMANDS = [
+    CREATE_TABLE_LOGS,
+    CREATE_TABLE_GITHUB_EVENTS,
+]
+
+
 def db_connect(db_path=DEFAULT_PATH):
-    con = sqlite3.connect(db_path)
-    return con
+    return sqlite3.connect(db_path, detect_types=sqlite3.PARSE_DECLTYPES)
 
 
 def initialize_db():
     with db_connect() as conn:
-        cur = conn.cursor()  # instantiate a cursor obj
+        cur = conn.cursor()
 
-        for table_creation_sql in [CREATE_TABLE_LOGS, CREATE_TABLE_GITHUB_EVENTS]:
+        for table_creation_sql in TABLE_CREATION_COMMANDS:
             cur.execute(table_creation_sql)
 
 
 def insert_operation_log(operation, duration, command_result_obj):
 
-    print("About to insert record for {} operation".format(operation))
     with db_connect() as conn:
         cur = conn.cursor()
-
-        print("\tpre-execute for inserting record for {} operation".format(operation))
         values_to_insert = (operation, duration, command_result_obj.return_code, command_result_obj.stdout, command_result_obj.stderr)
-
-        print("\tValues to insert:", values_to_insert)
         cur.execute("INSERT INTO command_logs (operation, duration, return_code, stdout, stderr) VALUES (?, ?, ?, ?, ?)", values_to_insert)
-
-        print("\tpre-commit for inserting record for {} operation".format(operation))
-
         conn.commit()
-
-        print("\tpost-commit for inserting record for {} operation".format(operation))
 
 
 def insert_event(event_type):
@@ -73,23 +89,3 @@ def clear_command_logs():
     os.remove(DEFAULT_PATH)
     initialize_db()
 
-
-CREATE_TABLE_LOGS = """
-CREATE TABLE IF NOT EXISTS command_logs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    operation text,
-    duration float,
-    return_code INTEGER,
-    stdout text,
-    stderr text,
-    created_at integer DEFAULT CURRENT_TIME
-)
-"""
-
-CREATE_TABLE_GITHUB_EVENTS = """
-CREATE TABLE IF NOT EXISTS github_events (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    event text,
-    received_at integer DEFAULT CURRENT_TIME
-)
-"""

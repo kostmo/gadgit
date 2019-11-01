@@ -7,7 +7,6 @@ import subprocess
 
 
 GIT_BINARY_PATH = "git"
-REPO_CLONE_URL = "https://github.com/pytorch/pytorch.git"
 
 
 # In contrast with the "/opt/python/current/app" directory, in which the
@@ -103,7 +102,7 @@ def current_pointing_prs(git_objdir, commit_sha1):
     return get_command_result(cmd_args)
 
 
-def bare_clone():
+def bare_clone(repo_clone_url):
     os.makedirs(os.path.dirname(CLONE_PATH), mode=0o777, exist_ok=True)
 
     cmd_args = [
@@ -111,7 +110,7 @@ def bare_clone():
         "clone",
         "--bare",
         "--single-branch",
-        REPO_CLONE_URL,
+        repo_clone_url,
         CLONE_PATH,
     ]
 

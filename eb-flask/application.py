@@ -17,7 +17,7 @@ def cmd_logs_clear_operation():
 
 
 def generate_rules(app):
-    app.add_url_rule('/', 'index', (lambda: ht.header_text + "<h2>Operational status</h2>" + long_git_operations.render_status() + ht.instructions + ht.footer_text))
+    app.add_url_rule('/', 'index', (lambda: ht.header_text + "<h2>Operational status</h2>" + long_git_operations.render_status() + ht.get_instructions() + ht.footer_text))
 
     # Actions
     app.add_url_rule('/git-clone', 'action1', long_git_operations.do_git_clone)
