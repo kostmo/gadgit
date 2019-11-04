@@ -1,5 +1,7 @@
 """
 Short Git operations
+
+Defines the structure of JSON responses for the web API
 """
 
 import string
@@ -56,7 +58,7 @@ def fetch_metadata_batch(commit_sha1_list):
 
 def git_pointing_prs(commit):
     """
-    May take around 0.5sec
+    A bit slow; may take around 0.5 seconds
     """
 
     if not is_hex_string(commit):

@@ -9,11 +9,14 @@ import subprocess
 GIT_BINARY_PATH = "git"
 
 
-# In contrast with the "/opt/python/current/app" directory, in which the
+# In contrast with the "/opt/python/current/app" directory in which the
 # python application files are stored, the "/tmp" directory persists across
 # application redeployments.  This persistence is desirable as a fresh
-# fetch of all of the PR refs can take over 10 minutes.
+# fetch of all of the pytorch PR refs can take over 10 minutes.
 CLONE_PATH = '/tmp/repo/pytorch.git'
+
+
+PULL_REQUEST_REF_MAPPING = "refs/pull/*:refs/remotes/origin/pr/*"
 
 
 class CommandResult:
@@ -38,7 +41,7 @@ def fetch_pr_refs():
         "fetch",
         "--force",
         "origin",
-        "refs/pull/*:refs/remotes/origin/pr/*",
+        PULL_REQUEST_REF_MAPPING,
     ]
 
     return get_command_result(cmd_args)
@@ -94,7 +97,7 @@ def current_pointing_prs(git_objdir, commit_sha1):
         "branch",
         "--all",
         "--list",
-        "*/pr/*/head",
+        "*/pr/*/head",  # See PULL_REQUEST_REF_MAPPING
         "--points-at",
         commit_sha1,
     ]
