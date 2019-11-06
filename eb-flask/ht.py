@@ -23,6 +23,7 @@ def get_instructions():
 
 
 home_link = '<p><a href="/">Back</a></p>\n'
+
 footer_text = '''
 <hr/><i>by <a href="https://github.com/kostmo" rel="author">kostmo</a></i>
 <span style="float: right">See <a href="https://github.com/kostmo/gadgit/blob/master/README.md">project README</a> for details.</span>

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Git operations
 """
@@ -17,6 +19,9 @@ CLONE_PATH = '/tmp/repo/pytorch.git'
 
 
 PULL_REQUEST_REF_MAPPING = "refs/pull/*:refs/remotes/origin/pr/*"
+
+
+PR_REF_TEMPLATE = "refs/remotes/origin/pr/%d/head"
 
 
 class CommandResult:
@@ -61,16 +66,20 @@ def master_merge_base(git_objdir, branch_commit_sha1):
     return get_command_result(cmd_args)
 
 
-def pull_request_head_commit(git_objdir, pr_number):
+def parse_bulk_refs(git_objdir, refs):
 
     cmd_args = [
         GIT_BINARY_PATH,
         '--git-dir',
         git_objdir,
         "rev-parse",
-        "refs/remotes/origin/pr/%d/head" % (pr_number),
-    ]
+    ] + refs
+
     return get_command_result(cmd_args)
+
+
+def pull_request_head_commit(git_objdir, pr_number):
+    return parse_bulk_refs(git_objdir, [PR_REF_TEMPLATE % pr_number])
 
 
 def commit_distance(git_objdir, merge_base_sha1, branch_commit_sha1):
@@ -171,3 +180,7 @@ def get_all_metadata_aspects(git_objdir, commit_sha1):
     return newdict
 
 
+if __name__ == "__main__":
+    # Test rev-parse
+
+    parse_bulk_refs(CLONE_PATH, ["master", "add_xla_cpp_test", "boolPrint"])

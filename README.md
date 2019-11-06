@@ -58,7 +58,7 @@ Run:
 
     eb-flask/application.py
 
-Excercise an endpoint with `curl`:
+Exercise an endpoint with `curl`:
 
     curl --data '["0c7537c40939f7682c179813a4b7a50020f08152", "7ed9a3ec4895f0f501cf435fec88ff974d93f3da"]' http://localhost:5000/commit-metadata
 

@@ -9,6 +9,7 @@ import long_git_operations
 import short_git_operations
 import db
 import ht
+import git
 
 
 def cmd_logs_clear_operation():
@@ -109,11 +110,46 @@ def handle_batch_commit_metadata_request():
 
     payload = json.loads(request.get_data())
     metadata_list = short_git_operations.fetch_metadata_batch(payload)
+
+    # TODO: Error handling
     mydict = {
         "status": "complete",
         "success": True,
         "result": metadata_list,
     }
+    return mydict
+
+
+@application.route('/bulk-pull-request-heads', methods=['POST'])
+def handle_batch_pull_request_heads_request():
+    """
+    To test:
+
+    curl --data '[22201, 23463]' http://localhost:5000/bulk-pull-request-heads
+    """
+
+    pr_numbers = json.loads(request.get_data())
+    pr_refs = list(map(lambda x: git.PR_REF_TEMPLATE % x, pr_numbers))
+
+    cmd_result = git.parse_bulk_refs(git.CLONE_PATH, pr_refs)
+
+    pr_head_associations = []
+
+    for pr_number, head_commit in zip(pr_numbers, cmd_result.stdout.splitlines()):
+        mydict = {
+            "pr_number": pr_number,
+            "head_commit": head_commit,
+        }
+
+        pr_head_associations.append(mydict)
+
+    # TODO: Error handling
+    mydict = {
+        "status": "complete",
+        "success": True,
+        "result": pr_head_associations,
+    }
+
     return mydict
 
 
