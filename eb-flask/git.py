@@ -20,7 +20,6 @@ CLONE_PATH = '/tmp/repo/pytorch.git'
 
 PULL_REQUEST_REF_MAPPING = "refs/pull/*:refs/remotes/origin/pr/*"
 
-
 PR_REF_TEMPLATE = "refs/remotes/origin/pr/%d/head"
 
 

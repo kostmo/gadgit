@@ -120,6 +120,33 @@ def handle_batch_commit_metadata_request():
     return mydict
 
 
+@application.route('/bulk-rev-parse', methods=['POST'])
+def handle_batch_rev_parse_request():
+    """
+    To test:
+
+    curl --data '["0c7537c~", "0c7537c~2"]' http://localhost:5000/bulk-rev-parse
+    """
+
+    refs = json.loads(request.get_data())
+    cmd_result = git.parse_bulk_refs(git.CLONE_PATH, refs)
+
+    def value_process_func(result):
+        ref_associations = []
+
+        for ref, commit_sha1 in zip(refs, result.stdout.splitlines()):
+            mydict = {
+                "ref": ref,
+                "commit_sha1": commit_sha1,
+            }
+
+            ref_associations.append(mydict)
+
+        return ref_associations
+
+    return short_git_operations.format_query_result(cmd_result, value_process_func)
+
+
 @application.route('/bulk-pull-request-heads', methods=['POST'])
 def handle_batch_pull_request_heads_request():
     """
@@ -133,24 +160,21 @@ def handle_batch_pull_request_heads_request():
 
     cmd_result = git.parse_bulk_refs(git.CLONE_PATH, pr_refs)
 
-    pr_head_associations = []
+    def value_process_func(result):
 
-    for pr_number, head_commit in zip(pr_numbers, cmd_result.stdout.splitlines()):
-        mydict = {
-            "pr_number": pr_number,
-            "head_commit": head_commit,
-        }
+        pr_head_associations = []
 
-        pr_head_associations.append(mydict)
+        for pr_number, head_commit in zip(pr_numbers, result.stdout.splitlines()):
+            mydict = {
+                "pr_number": pr_number,
+                "head_commit": head_commit,
+            }
 
-    # TODO: Error handling
-    mydict = {
-        "status": "complete",
-        "success": True,
-        "result": pr_head_associations,
-    }
+            pr_head_associations.append(mydict)
 
-    return mydict
+        return pr_head_associations
+
+    return short_git_operations.format_query_result(cmd_result, value_process_func)
 
 
 @application.route('/favicon.ico')
