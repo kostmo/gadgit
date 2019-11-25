@@ -30,6 +30,7 @@ def generate_rules(app):
     app.add_url_rule('/master-merge-base/<commit>', 'query3', short_git_operations.git_master_merge_base)
     app.add_url_rule('/head-of-pull-requests/<commit>', 'query4', short_git_operations.git_pointing_prs)
     app.add_url_rule('/is-ancestor/<ancestor>/<descendent>', 'query5', short_git_operations.query_ancestry)
+    app.add_url_rule('/rev-parse/<ref>', 'query6', short_git_operations.single_rev_parse)
 
     # Diagnostics
     app.add_url_rule('/action-logs/<cmd>', 'diag1', ht.dump_command_logs)

@@ -94,6 +94,12 @@ def git_master_merge_base(commit):
     return format_query_result(cmd_result)
 
 
+def single_rev_parse(ref):
+
+    cmd_result = git.parse_bulk_refs(git.CLONE_PATH, [ref])
+    return format_query_result(cmd_result)
+
+
 def query_ancestry(ancestor, descendent):
 
     if not is_hex_string(ancestor):

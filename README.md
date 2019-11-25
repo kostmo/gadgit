@@ -62,4 +62,15 @@ Exercise an endpoint with `curl`:
 
     curl --data '["0c7537c40939f7682c179813a4b7a50020f08152", "7ed9a3ec4895f0f501cf435fec88ff974d93f3da"]' http://localhost:5000/commit-metadata
 
+## Troubleshooting
+
+Sometimes the repo becomes corrupted, with commands returning error messages like:
+
+    fatal: Not a git repository: '/tmp/repo/pytorch.git'
+
+This can be a symptom of a missing `HEAD` file.
+
+To fix this, create the file `/tmp/repo/pytorch.git/HEAD` with the content:
+
+    ref: refs/heads/master
 
