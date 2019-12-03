@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Short Git operations
 
@@ -68,6 +70,22 @@ def git_pointing_prs(commit):
     return format_query_result(cmd_result, lambda x: list(map(lambda x: int(x.split("/")[-2]), x.stdout.split())))
 
 
+def parse_refs_with_individual_error_handling(refs):
+
+    results = []
+    for ref in refs:
+        cmd_result = git.parse_bulk_refs(git.CLONE_PATH, [ref])
+        formatted_result = format_query_result(cmd_result)
+
+        entry_dict = {
+            "ref": ref,
+            "output": formatted_result,
+        }
+        results.append(entry_dict)
+
+    return results
+
+
 def git_commit_distance(base, branch):
 
     if not is_hex_string(base):
@@ -100,15 +118,15 @@ def single_rev_parse(ref):
     return format_query_result(cmd_result)
 
 
-def query_ancestry(ancestor, descendent):
+def query_ancestry(ancestor, descendant):
 
     if not is_hex_string(ancestor):
         return format_error("ancestor commit {} is not a hexadecimal string".format(ancestor))
 
-    if not is_hex_string(descendent):
-        return format_error("descendent commit {} is not a hexadecimal string".format(descendent))
+    if not is_hex_string(descendant):
+        return format_error("descendant commit {} is not a hexadecimal string".format(descendant))
 
-    cmd_result = git.is_git_ancestor(git.CLONE_PATH, ancestor, descendent)
+    cmd_result = git.is_git_ancestor(git.CLONE_PATH, ancestor, descendant)
 
     def process_result(x):
 
@@ -120,6 +138,12 @@ def query_ancestry(ancestor, descendent):
             return False
         else:
             return format_error("Problem determining if {} is ancestor of {}"
-                               .format(ancestor, descendent))
+                               .format(ancestor, descendant))
 
     return format_query_result(cmd_result, process_result, lambda x: x.return_code in [0, 1])
+
+
+if __name__ == "__main__":
+    x = parse_refs_with_individual_error_handling(["master", "masters"])
+    import json
+    print(json.dumps(x))

@@ -113,6 +113,26 @@ def current_pointing_prs(git_objdir, commit_sha1):
     return get_command_result(cmd_args)
 
 
+CONFIG_TEXT = """
+[core]
+    repositoryformatversion = 0
+    filemode = true
+    bare = true
+[remote "origin"]
+    url = https://github.com/pytorch/pytorch.git
+"""
+
+
+def restore_head_ref():
+    with open(os.path.join(CLONE_PATH, "HEAD"), "w") as fh:
+        fh.write("ref: refs/heads/master")
+
+    with open(os.path.join(CLONE_PATH, "config"), "w") as fh:
+        fh.write(CONFIG_TEXT)
+
+    return "Done."
+
+
 def bare_clone(repo_clone_url):
     os.makedirs(os.path.dirname(CLONE_PATH), mode=0o777, exist_ok=True)
 
@@ -128,14 +148,14 @@ def bare_clone(repo_clone_url):
     return get_command_result(cmd_args)
 
 
-def is_git_ancestor(git_objdir, supposed_ancestor, supposed_descendent):
+def is_git_ancestor(git_objdir, supposed_ancestor, supposed_descendant):
     cmd_args = [
         GIT_BINARY_PATH,
         '--git-dir', git_objdir,
         'merge-base',
         '--is-ancestor',
         supposed_ancestor,
-        supposed_descendent,
+        supposed_descendant,
     ]
 
     return get_command_result(cmd_args)

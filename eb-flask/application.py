@@ -23,13 +23,14 @@ def generate_rules(app):
     # Actions
     app.add_url_rule('/git-clone', 'action1', long_git_operations.do_git_clone)
     app.add_url_rule('/pr-fetch', 'action2', long_git_operations.do_pr_fetch)
+    app.add_url_rule('/restore-head', 'action3', git.restore_head_ref)
 
     # Queries
     app.add_url_rule('/commit-distance/<base>/<branch>', 'query1', short_git_operations.git_commit_distance)
     app.add_url_rule('/pr-head-commit/<pr>', 'query2', short_git_operations.git_pull_request_head_commit)
     app.add_url_rule('/master-merge-base/<commit>', 'query3', short_git_operations.git_master_merge_base)
     app.add_url_rule('/head-of-pull-requests/<commit>', 'query4', short_git_operations.git_pointing_prs)
-    app.add_url_rule('/is-ancestor/<ancestor>/<descendent>', 'query5', short_git_operations.query_ancestry)
+    app.add_url_rule('/is-ancestor/<ancestor>/<descendant>', 'query5', short_git_operations.query_ancestry)
     app.add_url_rule('/rev-parse/<ref>', 'query6', short_git_operations.single_rev_parse)
 
     # Diagnostics
@@ -148,8 +149,41 @@ def handle_batch_rev_parse_request():
     return short_git_operations.format_query_result(cmd_result, value_process_func)
 
 
+# Has individual error handling on each PR
 @application.route('/bulk-pull-request-heads', methods=['POST'])
 def handle_batch_pull_request_heads_request():
+    """
+    To test:
+
+    curl --data '[22201, 23463, 9999999]' http://localhost:5000/bulk-pull-request-heads
+    """
+
+    pr_numbers = json.loads(request.get_data())
+
+    results = []
+    for pr_number in pr_numbers:
+        ref = git.PR_REF_TEMPLATE % pr_number
+        cmd_result = git.parse_bulk_refs(git.CLONE_PATH, [ref])
+        formatted_result = short_git_operations.format_query_result(cmd_result)
+
+        entry_dict = {
+            "pr_number": pr_number,
+            "output": formatted_result,
+        }
+        results.append(entry_dict)
+
+    mydict = {
+        "status": "complete",
+        "success": True,
+        "result": results,
+    }
+
+    return mydict
+
+
+# No individual error handling on each ref
+@application.route('/bulk-pull-request-heads-simple', methods=['POST'])
+def handle_batch_pull_request_heads_simple_request():
     """
     To test:
 
