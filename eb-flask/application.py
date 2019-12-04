@@ -81,6 +81,22 @@ def enforce_signature(req):
             abort(403)
 
 
+@application.route('/rev-parse-query', methods=['GET'])
+def rev_parse_query_handler():
+
+    ref = request.args.get('ref')
+    return short_git_operations.single_rev_parse(ref)
+
+
+@application.route('/is-ancestor-html', methods=['GET'])
+def ancestor_query_html_handler():
+
+    ancestor_ref = request.args.get('ancestor')
+    descendant_ref = request.args.get('descendant')
+
+    return short_git_operations.query_ancestry_html(ancestor_ref, descendant_ref)
+
+
 @application.route('/github-webhook-event', methods=['POST'])
 def webhook_handler():
 

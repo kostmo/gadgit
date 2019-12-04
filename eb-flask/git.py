@@ -45,6 +45,7 @@ def fetch_pr_refs():
         "fetch",
         "--force",
         "origin",
+        "viable/strict:viable/strict",
         PULL_REQUEST_REF_MAPPING,
     ]
 
@@ -157,6 +158,8 @@ def is_git_ancestor(git_objdir, supposed_ancestor, supposed_descendant):
         supposed_ancestor,
         supposed_descendant,
     ]
+
+    print("Running command:", " ".join(cmd_args))
 
     return get_command_result(cmd_args)
 

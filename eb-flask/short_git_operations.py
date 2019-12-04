@@ -118,6 +118,20 @@ def single_rev_parse(ref):
     return format_query_result(cmd_result)
 
 
+def query_ancestry_html(ancestor, descendant):
+
+    cmd_result = git.is_git_ancestor(git.CLONE_PATH, ancestor, descendant)
+
+    # 0 or 1 are expected exit codes of --is-ancestor,
+    # while other codes indicate a malfunction.
+    if cmd_result.return_code == 0:
+        return "<code>%s</code> <b style='color: green'>is an ancestor</b> of <code>%s</code>" % (ancestor, descendant)
+    elif cmd_result.return_code == 1:
+        return "<code>%s</code> <b style='color: red'>is <i>not</i> an ancestor</b> of <code>%s</code>" % (ancestor, descendant)
+    else:
+        return "ERROR: Problem determining if {} is ancestor of {}: <code>{}</code>".format(ancestor, descendant, cmd_result.stderr)
+
+
 def query_ancestry(ancestor, descendant):
 
     if not is_hex_string(ancestor):
