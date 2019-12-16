@@ -38,7 +38,6 @@ def render_log_entry_html(duration, created_at, return_code, stdout, stderr):
         arrow.get(created_at).humanize(), duration, return_code, stdout, stderr)
 
 
-
 def dump_command_logs(cmd):
     list_content = ""
     for x in db.get_operation_logs(cmd):

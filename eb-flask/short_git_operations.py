@@ -132,13 +132,18 @@ def query_ancestry_html(ancestor, descendant):
         return "ERROR: Problem determining if {} is ancestor of {}: <code>{}</code>".format(ancestor, descendant, cmd_result.stderr)
 
 
-def query_ancestry(ancestor, descendant):
+def query_ancestry_hexadecimal_only(ancestor, descendant):
 
     if not is_hex_string(ancestor):
         return format_error("ancestor commit {} is not a hexadecimal string".format(ancestor))
 
     if not is_hex_string(descendant):
         return format_error("descendant commit {} is not a hexadecimal string".format(descendant))
+
+    return query_ancestry(ancestor, descendant)
+
+
+def query_ancestry(ancestor, descendant):
 
     cmd_result = git.is_git_ancestor(git.CLONE_PATH, ancestor, descendant)
 

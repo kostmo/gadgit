@@ -15,7 +15,7 @@ GIT_BINARY_PATH = "git"
 # python application files are stored, the "/tmp" directory persists across
 # application redeployments.  This persistence is desirable as a fresh
 # fetch of all of the pytorch PR refs can take over 10 minutes.
-CLONE_PATH = '/tmp/repo/pytorch.git'
+CLONE_PATH = '/var/opt/gadgit/repo/pytorch.git'
 
 
 PULL_REQUEST_REF_MAPPING = "refs/pull/*:refs/remotes/origin/pr/*"
@@ -46,6 +46,7 @@ def fetch_pr_refs():
         "--force",
         "origin",
         "viable/strict:viable/strict",
+        "master:master",
         PULL_REQUEST_REF_MAPPING,
     ]
 

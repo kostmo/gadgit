@@ -30,7 +30,7 @@ def generate_rules(app):
     app.add_url_rule('/pr-head-commit/<pr>', 'query2', short_git_operations.git_pull_request_head_commit)
     app.add_url_rule('/master-merge-base/<commit>', 'query3', short_git_operations.git_master_merge_base)
     app.add_url_rule('/head-of-pull-requests/<commit>', 'query4', short_git_operations.git_pointing_prs)
-    app.add_url_rule('/is-ancestor/<ancestor>/<descendant>', 'query5', short_git_operations.query_ancestry)
+    app.add_url_rule('/is-ancestor/<ancestor>/<descendant>', 'query5', short_git_operations.query_ancestry_hexadecimal_only)
     app.add_url_rule('/rev-parse/<ref>', 'query6', short_git_operations.single_rev_parse)
 
     # Diagnostics
@@ -95,6 +95,15 @@ def ancestor_query_html_handler():
     descendant_ref = request.args.get('descendant')
 
     return short_git_operations.query_ancestry_html(ancestor_ref, descendant_ref)
+
+
+@application.route('/api/is-ancestor', methods=['GET'])
+def ancestor_query_handler():
+
+    ancestor_ref = request.args.get('ancestor')
+    descendant_ref = request.args.get('descendant')
+
+    return short_git_operations.query_ancestry(ancestor_ref, descendant_ref)
 
 
 @application.route('/github-webhook-event', methods=['POST'])
